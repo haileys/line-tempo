@@ -1,0 +1,8 @@
+[package]
+name = "line-tempo"
+version = "0.0.0"
+authors = ["Charlie Somerville <charlie@charlie.bz>"]
+
+[dependencies]
+cpal = "0.8"
+aubio = "0.0.1"
