@@ -59,14 +59,23 @@ fn adjust_tempo(mut tempo: f32, lo: f32, hi: f32) -> f32 {
 }
 
 fn run_tempo(device: &Device, format: &Format) -> Result<(), RunError> {
+    const BUFFER_SIZE: usize = 1024;
+
     let stream = input_stream(device, format)
         .map_err(RunError::StreamCreate)?;
 
-    let mut tempo = Tempo::new(1024, 1024, format.sample_rate.0 as usize)
+    let mut tempo = Tempo::new(BUFFER_SIZE, BUFFER_SIZE, format.sample_rate.0 as usize)
         .map_err(|()| RunError::Aubio)?;
 
+    let mut buffer = Vec::new();
+
     for samples in stream {
-        tempo.execute(&samples);
+        buffer.extend(samples);
+
+        while buffer.len() > BUFFER_SIZE {
+            tempo.execute(&buffer[0..BUFFER_SIZE]);
+            buffer.drain(0..BUFFER_SIZE);
+        }
 
         let mut stdout = io::stdout();
 
